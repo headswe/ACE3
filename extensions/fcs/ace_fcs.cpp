@@ -19,7 +19,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-
+#include <cstring> // strcmpy
 #define MAXELEVATION 20
 #define MAXITERATIONS 600
 #define PRECISION 0.1
@@ -27,9 +27,11 @@
 
 static char version[] = "1.0";
 
+#ifdef _WIN32
 extern "C" {
     __declspec (dllexport) void __stdcall RVExtension(char *output, int outputSize, const char *function);
 };
+#endif
 
 std::vector<std::string> splitString(std::string input) {
     std::istringstream ss(input);
@@ -102,7 +104,12 @@ double getSolution(double initSpeed, double airFriction, double angleTarget, dou
 #pragma warning( push )
 #pragma warning( disable : 4996 )
 
-void __stdcall RVExtension(char *output, int outputSize, const char *function) {
+#ifdef _WIN32
+void __stdcall RVExtension(char *output, int outputSize, const char *function) 
+#else
+void RVExtension(char *output, int outputSize, const char *function) 
+#endif
+{
     if (!strcmp(function, "version")) {
         strncpy(output, version, outputSize);
     } else {
